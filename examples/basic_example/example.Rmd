@@ -22,8 +22,15 @@ Depending on your hardware, operating system and user rights, the set of steps t
 Please test the next chunk of code that tries to check version of Python available in you system:
 
 ```{r}
-system_python = "python3"
-# system_python = "/Users/username/opt/anaconda3/envs/tf/bin/python3"
+# reticulate::py_available()
+# reticulate::install_python(version="3.11.7")
+# reticulate::py_discover_config()
+# reticulate::py_config()
+```
+
+
+```{r}
+system_python = "python"
 system2(system_python, "--version")
 ```
 
@@ -43,8 +50,8 @@ system2(system_python, "-m venv hmsc-venv")
 Then, we activate this Python environment by defining an appropriate `python` path variable and check that it works by printing the version of Python:
 
 ```{r}
-python = file.path(getwd(), "hmsc-venv", "bin", "python")  # for Linux and macOS
-# python = file.path(getwd(), "hmsc-venv", "Scripts", "python")  # for Windows
+# python = file.path(getwd(), "hmsc-venv", "bin", "python")  # for Linux and macOS
+python = file.path(getwd(), "hmsc-venv", "Scripts", "python")  # for Windows
 system2(python, "--version")
 ```
 
@@ -55,6 +62,9 @@ If this is failing, then you need to adjust the path to the correct Python execu
 For installing the Hmsc-HPC Python package, we need to define the path to the Hmsc-HPC package. Assuming that you have downloaded this notebook as a part of the distributed zip package, the pre-set `package_path` shall work fine. Otherwise, please set the correct `package_path`. (Note for reviewers: after the blind review, the Hmsc-HPC package will be published and can be directly installed from web repository.):
 
 ```{r}
+python = file.path(getwd(), "hmsc-venv", "Scripts", "python")  # for Windows
+system2(python, "--version")
+
 package_path = file.path(getwd(), "..", "..")
 system2(python, "-m pip install --upgrade pip")
 system2(python, paste("-m pip install", shQuote(package_path)))
@@ -72,7 +82,9 @@ The next code chunk tests that the Python environment works by executing a basic
 # Choose correct python by uncommenting correct line:
 # python = "python3"  # default
 # python = file.path(getwd(), "hmsc-venv", "bin", "python")  # hmsc-venv for Linux and macOS
-# python = file.path(getwd(), "hmsc-venv", "Scripts", "python")  # hmsc-venv for Windows
+python = file.path(getwd(), "hmsc-venv", "Scripts", "python")  # hmsc-venv for Windows
+
+# reticulate::py_install("tensorflow","./hmsc-venv")
 
 Sys.setenv(TF_CPP_MIN_LOG_LEVEL=3)  # reduce debug output from tensorflow
 system2(python, "-c \"import tensorflow as tf; print(tf.constant(1))\"")
@@ -90,8 +102,8 @@ If the above check and the detailed instructions do not work for you, please con
 First, we shall acquire a sufficiently recent `Hmsc` package. Most likely, the actual distribution on CRAN is already suitable, but most certainly it can be done from the master branch of `Hmsc` repo on GitHub.
 
 ```{r eval=FALSE, include=FALSE}
-library(devtools)
-install_github("hmsc-r/HMSC")
+# library(devtools)
+# install_github("hmsc-r/HMSC")
 ```
 
 Next, we load the required packages. We also set up the path to the working directory and the path to the Hmsc-HPC package. Assuming that you have downloaded this notebook as a part of the distributed Hmsc-HPC extension, the pre-set relative paths shall work fine. Otherwise, please note that these are user and system-specific, therefore you shall ensure their correctness yourself.
