@@ -4,3 +4,4 @@
 *.RData
 *.Rapp.history
 .Rproj.user
+*.txt
