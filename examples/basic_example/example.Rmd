@@ -22,10 +22,11 @@ Depending on your hardware, operating system and user rights, the set of steps t
 Please test the next chunk of code that tries to check version of Python available in you system:
 
 ```{r}
-# reticulate::py_available()
-# reticulate::install_python(version="3.11.7")
-# reticulate::py_discover_config()
-# reticulate::py_config()
+install.packages("reticulate")
+reticulate::py_available()
+reticulate::install_python(version="3.11.7")
+reticulate::py_discover_config()
+reticulate::py_config()
 ```
 
 
@@ -103,7 +104,7 @@ First, we shall acquire a sufficiently recent `Hmsc` package. Most likely, the a
 
 ```{r eval=FALSE, include=FALSE}
 # library(devtools)
-# install_github("hmsc-r/HMSC")
+# install_github("hmsc-r/HMSC") 
 ```
 
 Next, we load the required packages. We also set up the path to the working directory and the path to the Hmsc-HPC package. Assuming that you have downloaded this notebook as a part of the distributed Hmsc-HPC extension, the pre-set relative paths shall work fine. Otherwise, please note that these are user and system-specific, therefore you shall ensure their correctness yourself.
@@ -142,15 +143,18 @@ m = Hmsc(Y=TD$Y,
 Next, we obtain the reference by fitting `m` using the standard way with `sampleMcmc(...)` call.
 
 ```{r include=FALSE, results='hide'}
-fitR = sampleMcmc(m, samples=nSamples, thin=thin,
-									transient=transient, nChains=nChains,
-									verbose=verbose, engine="R")
+fitR = Hmsc::sampleMcmc(m,
+                  samples=nSamples, 
+                  thin=thin,
+                  transient=transient, 
+                  nChains=nChains,
+                  verbose=verbose)
 ```
 
 We also visualize some possible post-fitting postprocessing available in `Hmsc` package --- by the estimated partition of variance in the fitted model.
 
 ```{r}
-plotVariancePartitioning(fitR, computeVariancePartitioning(fitR),
+Hmsc::plotVariancePartitioning(fitR, Hmsc::computeVariancePartitioning(fitR),
 												 args.legend=list(x="bottomright"))
 ```
 
@@ -159,7 +163,7 @@ plotVariancePartitioning(fitR, computeVariancePartitioning(fitR),
 In order to use Hmsc-HPC, we need to export the model object, created by `Hmsc(...)` call. Also, the current design of `Hmsc-R` and `Hmsc-HPC` interplay requires that the model initialization, which happens just before the MCMC chains are run, is conducted in R. Thus, we use special keyword in the call `sampleMcmc(..., engine="HPC")`, which denotes that we are not interested in sampling the model, but only to initialize the sampling. We save the resulted object in obligatory JSON+RDS format to the working directory.
 
 ```{r}
-init_obj = sampleMcmc(m, samples=nSamples, thin=thin,
+init_obj = Hmsc::sampleMcmc(m, samples=nSamples, thin=thin,
 											transient=transient, nChains=nChains,
 											verbose=verbose, engine="HPC")
 init_file_path = file.path(getwd(), "init_file.rds")
