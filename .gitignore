@@ -7,3 +7,4 @@
 *.txt
 *.csv
 .Rhistory
+examples/basic_example/hmsc-venv/*
