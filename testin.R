@@ -1,6 +1,6 @@
 library(coda)
 library(Hmsc)
-load("examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_noran.Rdata")
+load("examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4.Rdata")
 test <- convertToCodaObject(m_list$longterm)
 traceplot(test$Beta)
 plot(test$Beta)
@@ -66,9 +66,52 @@ plot_var_list$Intercept
 
 library(jsonify)
 library(Hmsc)
-test_hpc <-  from_json(readRDS(file = "examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_longterm_post_file_noran.rds")[[1]])
+
+load("examples/basic_example/mapp_post_test/other_test/models/unfitted_models_noran.RData")
+m_list_noran <- m_list
+load("examples/basic_example/mapp_post_test/other_test/models/unfitted_models_hurdle.RData")
+load("examples/basic_example/mapp_post_test/other_test/models/unfitted_models.RData")
+
+
+test_hpc <-  from_json(readRDS(file = "examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_longterm_post_file.rds")[[1]])
+test_hpc_noran <- from_json(readRDS(file = 'examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_longterm_post_file_noran.rds')[[1]])
+test_hpc_mabuscaleX <- from_json(readRDS(file = 'examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_mabuscaleX_post_file_hurdle.rds')[[1]])
+test_hpc_mabuscaleXY <- from_json(readRDS(file = 'examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_mabuscaleXY_post_file_hurdle.rds')[[1]])
+test_hpc_mabu <- from_json(readRDS(file = 'examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_mabu_post_file_hurdle.rds')[[1]])
+test_hpc_mpa <- from_json(readRDS(file = 'examples/basic_example/mapp_post_test/other_test/models/models_thin_100_samples_250_chains_4_mpa_post_file_hurdle.rds')[[1]])
+
+
 postList <- test_hpc[1:4]
+postList_noran <- test_hpc_noran[1:4]
+postList_mpa <- test_hpc_mpa[1:4]
+postList_mabu <- test_hpc_mabu[1:4]
+postList_mabuscaleX <- test_hpc_mabuscaleX[1:4]
+postList_mabuscaleXY <- test_hpc_mabuscaleXY[1:4]
+
+
 cat(sprintf("fitting time %.1f sec\n", test_hpc[[4+1]]))
+cat(sprintf("fitting time %.1f sec\n", test_hpc_noran[[4+1]]))
+cat(sprintf("fitting time %.1f sec\n", test_hpc_mpa[[4+1]]))
+cat(sprintf("fitting time %.1f sec\n", test_hpc_mabu[[4+1]]))
+cat(sprintf("fitting time %.1f sec\n", test_hpc_mabuscaleX[[4+1]]))
+cat(sprintf("fitting time %.1f sec\n", test_hpc_mabuscaleXY[[4+1]]))
+
 fitTF <- importPosteriorFromHPC(m_list$longterm, postList, 250, 100, ceiling(0.5*5*1))
-plotVariancePartitioning(fitTF, computeVariancePartitioning(fitTF), args.legend=list(x="bottomright"))
-plotVariancePartitioning(m_list$longterm, computeVariancePartitioning(m_list$longterm), args.legend=list(x="bottomright"))
+fitTF_noran <- importPosteriorFromHPC(m_list_noran$longterm, postList_noran, 250, 100, ceiling(0.5*5*1))
+fitF_mpa <- importPosteriorFromHPC(m_list_hurdle$mpa, postList_mpa, 250, 100, ceiling(0.5*5*1))
+fitF_mabu <- importPosteriorFromHPC(m_list_hurdle$mabu, postList_mabu, 250, 100, ceiling(0.5*5*1))
+fitF_mabuscaleX <- importPosteriorFromHPC(m_list_hurdle$mabuscaleX, postList_mabuscaleX, 250, 100, ceiling(0.5*5*1))
+fitF_mabuscaleXY <- importPosteriorFromHPC(m_list_hurdle$mabuscaleXY, postList_mabuscaleXY, 250, 100, ceiling(0.5*5*1))
+
+plotVariancePartitioning(fitTF, computeVariancePartitioning(fitTF), args.legend=list(x="bottomright")) #longterm HPC
+plotVariancePartitioning(m_list$longterm, computeVariancePartitioning(m_list$longterm), args.legend=list(x="bottomright")) #longterm classic R
+plotVariancePartitioning(fitTF_noran, computeVariancePartitioning(fitTF_noran), args.legend=list(x="bottomright")) #longterm HPC
+plotVariancePartitioning(fitF_mpa, computeVariancePartitioning(fitF_mpa), args.legend=list(x="bottomright"))# longterm PA
+plotVariancePartitioning(fitF_mabu, computeVariancePartitioning(fitF_mabu), args.legend=list(x="bottomright"))# longterm ABU
+plotVariancePartitioning(fitF_mabuscaleX, computeVariancePartitioning(fitF_mabuscaleX), args.legend=list(x="bottomright"))# longterm ABU Y scaled
+plotVariancePartitioning(fitF_mabuscaleXY, computeVariancePartitioning(fitF_mabuscaleXY), args.legend=list(x="bottomright"))# longterm ABU Y scaled
+
+
+preds <- computePredictedValues(m_list$longterm)
+test1 <- evaluateModelFit(hM=m_list$longterm, predY=preds)
+test1$R2
