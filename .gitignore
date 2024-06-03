@@ -7,6 +7,6 @@
 *.csv
 .Rhistory
 examples/basic_example/hmsc-venv/*
-.pdf
-.xlsx
-.txt
+*.pdf
+*.xlsx
+*.txt
