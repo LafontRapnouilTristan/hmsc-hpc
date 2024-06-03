@@ -4,7 +4,6 @@
 *.RData
 *.Rapp.history
 .Rproj.user
-*.txt
 *.csv
 .Rhistory
 examples/basic_example/hmsc-venv/*
